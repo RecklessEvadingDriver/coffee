@@ -10,7 +10,7 @@ import {
 import { store, useProducts } from "./lib/store";
 import Header from "./components/Header";
 import Hero from "./components/Hero";
-import ProcessBand from "./components/ProcessBand";
+import RoastLog from "./components/RoastLog";
 import ShopSection from "./components/ShopSection";
 import ProductModal from "./components/ProductModal";
 import CartDrawer, { type CartLineView } from "./components/CartDrawer";
@@ -197,11 +197,12 @@ export default function App() {
           <main>
             <Hero
               featured={featured}
+              count={products.length}
               onQuickAdd={(p) => addToCart(p)}
               onOpen={(p) => setActive(p)}
             />
             <ShopSection products={products} onOpen={(p) => setActive(p)} onAdd={(p) => addToCart(p)} />
-            <ProcessBand />
+            <RoastLog />
           </main>
         ) : (
           <main>
@@ -217,50 +218,49 @@ export default function App() {
 
         {/* footer */}
         <footer id="visit" className="mt-8 scroll-mt-24 border-t border-cream-100/8 bg-espresso-900/50">
-          <div className="container-x grid gap-12 py-14 md:grid-cols-[1.4fr_1fr_1.3fr] md:gap-10">
-            <div>
-              <div className="flex items-center gap-3">
-                <span className="grid h-10 w-10 place-items-center rounded-full border border-caramel-500/40 bg-espresso-850 text-caramel-400">
-                  <IconCup className="h-5 w-5" />
-                </span>
-                <span className="leading-none">
-                  <span className="font-display text-xl font-semibold tracking-[0.08em] text-cream-50">
-                    CINDER
-                  </span>
-                  <span className="mt-1 block text-[9px] font-bold uppercase tracking-[0.42em] text-cream-500">
-                    Coffee Roasters
-                  </span>
-                </span>
+          <div className="container-x flex flex-col gap-12 py-14 lg:flex-row lg:items-end lg:justify-between md:py-18">
+            <div className="max-w-xl">
+              <p
+                aria-hidden
+                className="select-none font-display text-[76px] font-semibold leading-[0.82] tracking-[0.02em] text-transparent sm:text-[108px] md:text-[132px]"
+                style={{ WebkitTextStroke: "1.5px rgba(231,213,182,0.26)" }}
+              >
+                CINDER
+              </p>
+              <p className="mt-6 max-w-sm text-sm leading-relaxed text-cream-400">
+                Two drums, nineteen farming families, and a shelf that only ever runs
+                a handful of coffees deep. Slabtown, Portland — roasting to order
+                since 2017.
+              </p>
+              <p className="mt-5 inline-block -rotate-2 rounded border-2 border-caramel-500/50 px-3.5 py-1.5 font-display text-[11px] font-bold uppercase tracking-[0.32em] text-caramel-400">
+                Est. 2017 · PDX
+              </p>
+            </div>
+
+            <div className="grid gap-10 sm:grid-cols-2 lg:max-w-xl">
+              <div>
+                <h4 className="eyebrow">The roastery</h4>
+                <address className="mt-4 text-sm not-italic leading-relaxed text-cream-300">
+                  2140 NW Quimby St
+                  <br />
+                  Portland, OR 97210
+                </address>
+                <ul className="mt-4 space-y-1.5 text-sm text-cream-400">
+                  <li className="flex justify-between gap-4">
+                    <span>Mon – Fri</span>
+                    <span className="font-bold text-cream-200">7 am – 4 pm</span>
+                  </li>
+                  <li className="flex justify-between gap-4">
+                    <span>Sat – Sun</span>
+                    <span className="font-bold text-cream-200">8 am – 3 pm</span>
+                  </li>
+                </ul>
+                <p className="mt-4 text-xs font-bold text-caramel-400">
+                  Public cupping every Saturday, 10 am.
+                </p>
               </div>
-              <p className="mt-4 max-w-xs text-sm leading-relaxed text-cream-400">
-                A two-drum roastery in the Slabtown district, buying directly from
-                nineteen farming families and roasting everything to order since 2017.
-              </p>
-            </div>
 
-            <div>
-              <h4 className="eyebrow">The roastery</h4>
-              <address className="mt-4 text-sm not-italic leading-relaxed text-cream-300">
-                2140 NW Quimby St
-                <br />
-                Portland, OR 97210
-              </address>
-              <ul className="mt-4 space-y-1.5 text-sm text-cream-400">
-                <li className="flex justify-between gap-4">
-                  <span>Mon – Fri</span>
-                  <span className="font-bold text-cream-200">7 am – 4 pm</span>
-                </li>
-                <li className="flex justify-between gap-4">
-                  <span>Sat – Sun</span>
-                  <span className="font-bold text-cream-200">8 am – 3 pm</span>
-                </li>
-              </ul>
-              <p className="mt-4 text-xs font-bold text-caramel-400">
-                Public cupping every Saturday, 10 am.
-              </p>
-            </div>
-
-            <div>
+              <div>
               <h4 className="eyebrow">First Crack Club</h4>
               <p className="mt-4 text-sm leading-relaxed text-cream-400">
                 One email when the shelf restocks, plus the brew recipe we&rsquo;re
@@ -294,6 +294,7 @@ export default function App() {
                   </button>
                 </form>
               )}
+              </div>
             </div>
           </div>
           <div className="border-t border-cream-100/8">

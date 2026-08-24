@@ -40,8 +40,8 @@ export default function Header({
             <a href="#shelf" className="transition-colors hover:text-caramel-300">
               The Shelf
             </a>
-            <a href="#process" className="transition-colors hover:text-caramel-300">
-              The Process
+            <a href="#roastery" className="transition-colors hover:text-caramel-300">
+              Roast Log
             </a>
             <a href="#visit" className="transition-colors hover:text-caramel-300">
               Visit

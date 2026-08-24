@@ -44,10 +44,12 @@ function RotatingStamp() {
 
 export default function Hero({
   featured,
+  count,
   onQuickAdd,
   onOpen,
 }: {
   featured: Product | null;
+  count: number;
   onQuickAdd: (p: Product) => void;
   onOpen: (p: Product) => void;
 }) {
@@ -61,15 +63,32 @@ export default function Hero({
             Small-batch roastery — Portland, OR
           </p>
           <h1 className="mt-5 font-display text-[44px] font-medium leading-[1.02] tracking-tight text-cream-50 sm:text-6xl xl:text-[76px]">
-            Six coffees.
+            {count} {count === 1 ? "coffee" : "coffees"}.
             <br />
-            <em className="font-light italic text-caramel-400">Roasted</em> like it
-            matters.
+            <span className="relative inline-block">
+              <em className="font-light italic text-caramel-400">Roasted</em>
+              <svg
+                className="scribble absolute -bottom-2 left-0 w-full"
+                viewBox="0 0 160 12"
+                fill="none"
+                preserveAspectRatio="none"
+                aria-hidden
+              >
+                <path
+                  d="M3 8.5C38 3.5 62 10.5 88 7.5c28-3.2 46-2 69-3.5"
+                  stroke="#df9c4b"
+                  strokeWidth="3.2"
+                  strokeLinecap="round"
+                  opacity="0.8"
+                />
+              </svg>
+            </span>{" "}
+            like it matters.
           </h1>
           <p className="mt-6 max-w-xl text-[15px] leading-relaxed text-cream-300 md:text-base">
-            We buy six lots a month, roast them to order on a 1962 Probat, and ship
-            within a day of first crack. No warehouse bags, no mystery blends — just
-            this shelf, refilled when it&rsquo;s empty.
+            Small lots from farms we can name, roasted to order on a 1962 Probat and
+            shipped within a day of first crack. No warehouse bags, no mystery
+            blends — just this shelf, refilled when it&rsquo;s empty.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-4">
             <a
@@ -80,16 +99,16 @@ export default function Hero({
               <IconArrowDown className="h-4 w-4" strokeWidth={2.2} />
             </a>
             <a
-              href="#process"
+              href="#roastery"
               className="text-sm font-bold text-cream-300 underline decoration-caramel-500/50 underline-offset-8 transition-colors hover:text-caramel-300"
             >
-              How we roast
+              This week&rsquo;s roast log
             </a>
           </div>
           <dl className="mt-12 flex flex-wrap gap-x-10 gap-y-6 border-t border-cream-100/10 pt-7">
             {[
               ["24 h", "roast to dispatch"],
-              ["6", "lots on the shelf"],
+              [String(count), count === 1 ? "lot on the shelf" : "lots on the shelf"],
               ["100%", "traceable to farm"],
             ].map(([v, l]) => (
               <div key={l}>
@@ -135,7 +154,7 @@ export default function Hero({
 
           {/* roast of the week card */}
           {featured && (
-          <div className="anim-rise absolute -bottom-8 -left-2 flex w-[292px] items-center gap-3 rounded-xl border border-cream-100/12 bg-espresso-900/95 p-3.5 shadow-warm backdrop-blur sm:-left-8" style={{ animationDelay: "250ms" }}>
+          <div className="anim-rise absolute -bottom-8 -left-2 flex w-[292px] -rotate-2 items-center gap-3 rounded-xl border border-cream-100/12 bg-espresso-900/95 p-3.5 shadow-warm backdrop-blur transition-transform duration-500 hover:rotate-0 sm:-left-8" style={{ animationDelay: "250ms" }}>
             <button
               type="button"
               onClick={() => onOpen(featured)}

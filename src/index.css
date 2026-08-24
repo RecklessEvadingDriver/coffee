@@ -162,6 +162,16 @@ body {
     background-position: 28px 0;
   }
 }
+@keyframes draw-stroke {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.scribble path {
+  stroke-dasharray: 240;
+  stroke-dashoffset: 240;
+  animation: draw-stroke 0.8s cubic-bezier(0.6, 0, 0.3, 1) 0.55s forwards;
+}
 
 .anim-rise {
   animation: rise-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
