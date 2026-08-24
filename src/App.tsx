@@ -177,7 +177,7 @@ export default function App() {
   const toggleAdmin = () => setView((v) => (v === "store" ? "admin" : "store"));
 
   return (
-    <div id="top" className="relative min-h-screen">
+    <div id="top" className="relative min-h-screen overflow-x-clip">
       {/* ambient background */}
       <div aria-hidden className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
         <div className="glow-drift absolute -top-40 right-[-12%] h-[520px] w-[520px] rounded-full bg-caramel-600/10 blur-[130px]" />
@@ -222,7 +222,7 @@ export default function App() {
             <div className="max-w-xl">
               <p
                 aria-hidden
-                className="select-none font-display text-[76px] font-semibold leading-[0.82] tracking-[0.02em] text-transparent sm:text-[108px] md:text-[132px]"
+                className="select-none font-display text-[60px] font-semibold leading-[0.82] tracking-[0.02em] text-transparent sm:text-[108px] md:text-[132px]"
                 style={{ WebkitTextStroke: "1.5px rgba(231,213,182,0.26)" }}
               >
                 CINDER

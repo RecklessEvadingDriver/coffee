@@ -154,7 +154,7 @@ export default function Hero({
 
           {/* roast of the week card */}
           {featured && (
-          <div className="anim-rise absolute -bottom-8 -left-2 flex w-[292px] -rotate-2 items-center gap-3 rounded-xl border border-cream-100/12 bg-espresso-900/95 p-3.5 shadow-warm backdrop-blur transition-transform duration-500 hover:rotate-0 sm:-left-8" style={{ animationDelay: "250ms" }}>
+          <div className="anim-rise relative z-10 mt-5 flex w-full -rotate-1 items-center gap-3 rounded-xl border border-cream-100/12 bg-espresso-900/95 p-3.5 shadow-warm backdrop-blur transition-transform duration-500 hover:rotate-0 sm:absolute sm:-bottom-8 sm:-left-2 sm:mt-0 sm:w-[292px] sm:-rotate-2 lg:-left-8" style={{ animationDelay: "250ms" }}>
             <button
               type="button"
               onClick={() => onOpen(featured)}
