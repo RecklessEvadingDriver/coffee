@@ -139,6 +139,20 @@ function ModalInner({
 
             {/* purchase */}
             <div className="mt-6 rounded-xl border border-cream-100/10 bg-espresso-900/70 p-4">
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-cream-500">
+                  Bag size
+                </p>
+                {product.stock > 0 ? (
+                  <p className="text-[11px] font-bold text-sage-400">
+                    {product.stock} {product.stock === 1 ? "bag" : "bags"} at the roastery
+                  </p>
+                ) : (
+                  <p className="text-[11px] font-bold text-cherry-400">
+                    Sold out — back after the next roast day
+                  </p>
+                )}
+              </div>
               <div className="grid grid-cols-2 gap-2">
                 {WEIGHTS.map((w, i) => {
                   const active = weightIdx === i;
@@ -164,15 +178,33 @@ function ModalInner({
                 })}
               </div>
               <div className="mt-3 flex items-center gap-3">
-                <QtyStepper qty={qty} onChange={(q) => setQty(Math.max(1, q))} min={1} />
+                {product.stock > 0 && (
+                  <QtyStepper
+                    qty={Math.min(qty, product.stock)}
+                    onChange={(q) => setQty(Math.min(Math.max(1, q), product.stock))}
+                    min={1}
+                    max={product.stock}
+                  />
+                )}
                 <button
                   type="button"
-                  onClick={() => onAdd(product, weightIdx, qty)}
-                  className="btn-press flex h-11 flex-1 items-center justify-center gap-2 rounded-full bg-caramel-500 text-sm font-extrabold text-espresso-950 transition-colors hover:bg-caramel-400"
+                  disabled={product.stock <= 0}
+                  onClick={() => onAdd(product, weightIdx, Math.min(qty, product.stock))}
+                  className={`btn-press flex h-11 flex-1 items-center justify-center gap-2 rounded-full text-sm font-extrabold transition-colors ${
+                    product.stock <= 0
+                      ? "cursor-not-allowed border border-cream-100/15 text-cream-500"
+                      : "bg-caramel-500 text-espresso-950 hover:bg-caramel-400"
+                  }`}
                 >
-                  <IconBag className="h-4 w-4" strokeWidth={2} />
-                  Add {qty > 1 ? `${qty} × ` : ""}
-                  {WEIGHTS[weightIdx].label} — {money(unit * qty)}
+                  {product.stock <= 0 ? (
+                    "Sold out"
+                  ) : (
+                    <>
+                      <IconBag className="h-4 w-4" strokeWidth={2} />
+                      Add {qty > 1 ? `${Math.min(qty, product.stock)} × ` : ""}
+                      {WEIGHTS[weightIdx].label} — {money(unit * Math.min(qty, product.stock))}
+                    </>
+                  )}
                 </button>
               </div>
             </div>

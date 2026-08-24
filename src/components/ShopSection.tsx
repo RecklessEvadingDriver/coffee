@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import {
   CATEGORIES,
-  PRODUCTS,
+  LOW_STOCK_AT,
   money,
   type CategoryFilter,
   type Product,
@@ -28,6 +28,9 @@ function ProductCard({
   onOpen: (p: Product) => void;
   onAdd: (p: Product) => void;
 }) {
+  const soldOut = product.stock <= 0;
+  const low = !soldOut && product.stock <= LOW_STOCK_AT;
+
   return (
     <Reveal delay={index * 80}>
       <article
@@ -39,19 +42,34 @@ function ProductCard({
             src={product.image}
             alt={`${product.name} — ${product.origin}`}
             loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.05]"
+            className={`h-full w-full object-cover transition-all duration-700 ease-out group-hover:scale-[1.05] ${
+              soldOut ? "opacity-45 saturate-0" : ""
+            }`}
           />
           <span className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-espresso-950/70 to-transparent" />
-          {product.badge && (
-            <span className="chip absolute left-3 top-3 border-caramel-500/40 bg-espresso-950/80 text-caramel-300 backdrop-blur-sm">
-              {product.badge}
+          {soldOut ? (
+            <span className="chip absolute left-3 top-3 border-cream-100/25 bg-espresso-950/85 text-cream-300 backdrop-blur-sm">
+              Sold out
+            </span>
+          ) : (
+            product.badge && (
+              <span className="chip absolute left-3 top-3 border-caramel-500/40 bg-espresso-950/80 text-caramel-300 backdrop-blur-sm">
+                {product.badge}
+              </span>
+            )
+          )}
+          {low && (
+            <span className="chip absolute right-3 top-3 border-cherry-500/50 bg-espresso-950/85 text-cherry-400 backdrop-blur-sm">
+              Only {product.stock} left
             </span>
           )}
-          <span className="absolute inset-0 hidden items-center justify-center bg-espresso-950/25 opacity-0 transition-opacity duration-300 group-hover:opacity-100 md:flex">
-            <span className="translate-y-2 rounded-full bg-cream-50 px-4 py-2 text-[11px] font-extrabold uppercase tracking-[0.16em] text-espresso-950 transition-transform duration-300 group-hover:translate-y-0">
-              Quick view
+          {!soldOut && (
+            <span className="absolute inset-0 hidden items-center justify-center bg-espresso-950/25 opacity-0 transition-opacity duration-300 group-hover:opacity-100 md:flex">
+              <span className="translate-y-2 rounded-full bg-cream-50 px-4 py-2 text-[11px] font-extrabold uppercase tracking-[0.16em] text-espresso-950 transition-transform duration-300 group-hover:translate-y-0">
+                Quick view
+              </span>
             </span>
-          </span>
+          )}
         </div>
 
         <div className="p-5">
@@ -82,20 +100,33 @@ function ProductCard({
           </div>
           <div className="mt-4 flex items-center justify-between border-t border-cream-100/8 pt-4">
             <p>
-              <span className="font-display text-xl text-cream-50">{money(product.price)}</span>
+              <span className={`font-display text-xl ${soldOut ? "text-cream-400" : "text-cream-50"}`}>
+                {money(product.price)}
+              </span>
               <span className="ml-1 text-xs text-cream-500">/ 250 g</span>
             </p>
             <button
               type="button"
-              aria-label={`Add ${product.name} to bag`}
+              aria-label={soldOut ? `${product.name} is sold out` : `Add ${product.name} to bag`}
+              disabled={soldOut}
               onClick={(e) => {
                 e.stopPropagation();
                 onAdd(product);
               }}
-              className="btn-press flex h-9 items-center gap-1.5 rounded-full bg-caramel-500 pl-3 pr-3.5 text-sm font-extrabold text-espresso-950 transition-colors hover:bg-caramel-400"
+              className={`btn-press flex h-9 items-center gap-1.5 rounded-full pl-3 pr-3.5 text-sm font-extrabold transition-colors ${
+                soldOut
+                  ? "cursor-not-allowed border border-cream-100/15 text-cream-500"
+                  : "bg-caramel-500 text-espresso-950 hover:bg-caramel-400"
+              }`}
             >
-              <IconPlus className="h-4 w-4" strokeWidth={2.4} />
-              Add
+              {soldOut ? (
+                "Sold out"
+              ) : (
+                <>
+                  <IconPlus className="h-4 w-4" strokeWidth={2.4} />
+                  Add
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -105,9 +136,11 @@ function ProductCard({
 }
 
 export default function ShopSection({
+  products,
   onOpen,
   onAdd,
 }: {
+  products: Product[];
   onOpen: (p: Product) => void;
   onAdd: (p: Product) => void;
 }) {
@@ -119,14 +152,14 @@ export default function ShopSection({
     () =>
       CATEGORIES.map((c) => ({
         c,
-        n: c === "All" ? PRODUCTS.length : PRODUCTS.filter((p) => p.category === c).length,
+        n: c === "All" ? products.length : products.filter((p) => p.category === c).length,
       })),
-    []
+    [products]
   );
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    let list = PRODUCTS.filter((p) => {
+    let list = products.filter((p) => {
       const haystack = [p.name, p.origin, p.region, p.process, p.category, p.producer, ...p.notes]
         .join(" ")
         .toLowerCase();
@@ -138,7 +171,7 @@ export default function ShopSection({
     if (sort === "price-desc") list = [...list].sort((a, b) => b.price - a.price);
     if (sort === "roast") list = [...list].sort((a, b) => a.roast - b.roast);
     return list;
-  }, [query, category, sort]);
+  }, [products, query, category, sort]);
 
   const reset = () => {
     setQuery("");
@@ -230,7 +263,7 @@ export default function ShopSection({
       {/* results meta */}
       <p className="mt-7 text-sm text-cream-500">
         Showing <span className="font-bold text-cream-300">{filtered.length}</span> of{" "}
-        {PRODUCTS.length} coffees
+        {products.length} coffees
         {query.trim() && (
           <>
             {" "}for &ldquo;<span className="text-caramel-300">{query.trim()}</span>&rdquo;
@@ -258,15 +291,16 @@ export default function ShopSection({
             <IconBeanLine className="mx-auto h-14 w-14 text-espresso-600" strokeWidth={1.2} />
             <h3 className="mt-5 font-display text-3xl text-cream-100">Nothing in the hopper.</h3>
             <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-cream-500">
-              No coffee matches that search and filter combination. Loosen the grind a
-              little and try again.
+              {products.length === 0
+                ? "The shelf is empty right now — check back after the next roast day."
+                : "No coffees match that search. Loosen the filters and try again."}
             </p>
             <button
               type="button"
               onClick={reset}
-              className="btn-press mt-6 inline-flex h-11 items-center rounded-full bg-caramel-500 px-6 text-sm font-extrabold text-espresso-950 transition-colors hover:bg-caramel-400"
+              className="btn-press mt-6 h-11 rounded-full border border-caramel-500/50 px-6 text-sm font-extrabold text-caramel-300 transition-colors hover:bg-caramel-500/10"
             >
-              Clear search & filters
+              Reset filters
             </button>
           </div>
         )}

@@ -5,12 +5,14 @@ export interface BrewRow {
   time: string;
 }
 
+export type CategoryName = "Single Origin" | "Blends" | "Decaf" | "Microlot";
+
 export interface Product {
   id: string;
   name: string;
   origin: string;
   region: string;
-  category: "Single Origin" | "Blends" | "Decaf" | "Microlot";
+  category: CategoryName;
   process: string;
   varietal: string;
   altitude: string;
@@ -19,6 +21,7 @@ export interface Product {
   notes: string[];
   description: string;
   price: number; // per 250 g
+  stock: number; // bags on hand
   image: string;
   accent: string;
   badge?: string;
@@ -37,6 +40,7 @@ export const WEIGHTS: WeightOption[] = [
 
 export const FREE_SHIPPING_AT = 45;
 export const FLAT_SHIPPING = 6;
+export const LOW_STOCK_AT = 15;
 
 export const ROAST_LABELS: Record<number, string> = {
   1: "Light",
@@ -54,6 +58,21 @@ export function unitPrice(p: Product, weightIdx: number): number {
   return Math.round(p.price * WEIGHTS[weightIdx].factor * 100) / 100;
 }
 
+const DEFAULT_BREW: BrewRow[] = [
+  { method: "V60", ratio: "15 g / 250 g", temp: "93 °C", time: "2:45" },
+  { method: "Batch brew", ratio: "60 g / 1 L", temp: "94 °C", time: "5:30" },
+  { method: "Espresso", ratio: "18 g in / 36 g out", temp: "93 °C", time: "0:28" },
+];
+
+export const SAMPLE_IMAGES = [
+  "https://image.qwenlm.ai/generated-images/b93827b9-2088-4731-88d9-a9ef31e27348/_result.png",
+  "https://image.qwenlm.ai/generated-images/934f8e91-e674-48c8-bffb-ea02c93205ff/_result.png",
+  "https://image.qwenlm.ai/generated-images/24399d7a-1e0e-4bea-915b-104d8c3502ce/_result.png",
+  "https://image.qwenlm.ai/generated-images/156628a7-31d2-4c2a-91c2-cfdbaf45a5bb/_result.png",
+  "https://image.qwenlm.ai/generated-images/c312525e-5d1b-4307-ab26-e7e0fcef5e48/_result.png",
+  "https://image.qwenlm.ai/generated-images/eb8b66e7-741c-4555-b0cd-3ae318dd43b2/_result.png",
+];
+
 export const PRODUCTS: Product[] = [
   {
     id: "ethiopia-idido",
@@ -70,8 +89,8 @@ export const PRODUCTS: Product[] = [
     description:
       "A luminous washed lot from the Idido washing station, where heirloom cherries are floated, hand-sorted and dried slowly on raised beds. It unfurls as it cools — jasmine up front, white peach through the middle, and a long bergamot finish that keeps coming back.",
     price: 21.5,
-    image:
-      "https://image.qwenlm.ai/generated-images/b93827b9-2088-4731-88d9-a9ef31e27348/_result.png",
+    stock: 48,
+    image: SAMPLE_IMAGES[0],
     accent: "#e9b872",
     badge: "New crop",
     brewGuide: [
@@ -95,8 +114,8 @@ export const PRODUCTS: Product[] = [
     description:
       "The Rojas family leaves just enough mucilage on the seed for the sugars to caramelise in the drum — panela sweetness with a crisp red-apple acidity. Our go-to recommendation for anyone moving off supermarket coffee and never looking back.",
     price: 19.0,
-    image:
-      "https://image.qwenlm.ai/generated-images/934f8e91-e674-48c8-bffb-ea02c93205ff/_result.png",
+    stock: 62,
+    image: SAMPLE_IMAGES[1],
     accent: "#a3b183",
     brewGuide: [
       { method: "V60", ratio: "15 g / 250 g", temp: "93 °C", time: "2:30" },
@@ -119,8 +138,8 @@ export const PRODUCTS: Product[] = [
     description:
       "A thunderstorm in a cup. Double fermentation at the factory gives this AA its trademark blackcurrant punch, brightened by grapefruit and settled by raw demerara sugar. Juicy, loud, unmistakably Kenyan — pour it for someone who says coffee all tastes the same.",
     price: 23.0,
-    image:
-      "https://image.qwenlm.ai/generated-images/24399d7a-1e0e-4bea-915b-104d8c3502ce/_result.png",
+    stock: 12,
+    image: SAMPLE_IMAGES[2],
     accent: "#c76b76",
     badge: "Co-op lot",
     brewGuide: [
@@ -144,8 +163,8 @@ export const PRODUCTS: Product[] = [
     description:
       "Our house espresso, built to sit under a flat white and still be heard. Brazilian naturals bring cacao and molasses weight; a shot of Ethiopian heirloom keeps the hazelnut sweetness from going flat. Pulls a syrupy, tiger-striped shot, every single time.",
     price: 17.5,
-    image:
-      "https://image.qwenlm.ai/generated-images/156628a7-31d2-4c2a-91c2-cfdbaf45a5bb/_result.png",
+    stock: 120,
+    image: SAMPLE_IMAGES[3],
     accent: "#df9c4b",
     badge: "Best seller",
     brewGuide: [
@@ -169,8 +188,8 @@ export const PRODUCTS: Product[] = [
     description:
       "Decaf that doesn't apologise. The sugarcane process is gentle on the seed, so instead of cardboard you get milk chocolate, roasted almond and a soft date sweetness. It's the last cup of the day — roasted with exactly the same care as the first.",
     price: 18.0,
-    image:
-      "https://image.qwenlm.ai/generated-images/c312525e-5d1b-4307-ab26-e7e0fcef5e48/_result.png",
+    stock: 40,
+    image: SAMPLE_IMAGES[4],
     accent: "#8fa3b0",
     brewGuide: [
       { method: "V60", ratio: "16 g / 250 g", temp: "95 °C", time: "2:50" },
@@ -193,8 +212,8 @@ export const PRODUCTS: Product[] = [
     description:
       "Twelve bags, and that's the whole lot. Don Miguel ferments his cherries anaerobically for five days before drying them whole, which lands somewhere between strawberry jam and rum raisin, with vanilla in the finish. When this page says sold out, it genuinely is.",
     price: 24.5,
-    image:
-      "https://image.qwenlm.ai/generated-images/eb8b66e7-741c-4555-b0cd-3ae318dd43b2/_result.png",
+    stock: 12,
+    image: SAMPLE_IMAGES[5],
     accent: "#d06a4e",
     badge: "12 bags only",
     brewGuide: [
@@ -205,5 +224,14 @@ export const PRODUCTS: Product[] = [
   },
 ];
 
-export const CATEGORIES = ["All", "Single Origin", "Blends", "Decaf", "Microlot"] as const;
+export const CATEGORIES: Array<"All" | CategoryName> = [
+  "All",
+  "Single Origin",
+  "Blends",
+  "Decaf",
+  "Microlot",
+];
 export type CategoryFilter = (typeof CATEGORIES)[number];
+export const CATEGORY_NAMES: CategoryName[] = ["Single Origin", "Blends", "Decaf", "Microlot"];
+
+export { DEFAULT_BREW };

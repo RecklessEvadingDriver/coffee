@@ -86,10 +86,12 @@ export function QtyStepper({
   qty,
   onChange,
   min = 0,
+  max = Infinity,
 }: {
   qty: number;
   onChange: (q: number) => void;
   min?: number;
+  max?: number;
 }) {
   return (
     <div className="inline-flex items-center rounded-full border border-cream-100/15 bg-espresso-800">
@@ -106,8 +108,10 @@ export function QtyStepper({
       <button
         type="button"
         aria-label="Increase quantity"
+        disabled={qty >= max}
+        title={qty >= max && max !== Infinity ? "That's everything we have" : undefined}
         onClick={() => onChange(qty + 1)}
-        className="grid h-8 w-8 place-items-center rounded-full text-cream-300 transition hover:text-caramel-300 active:scale-90"
+        className="grid h-8 w-8 place-items-center rounded-full text-cream-300 transition hover:text-caramel-300 active:scale-90 disabled:pointer-events-none disabled:opacity-30"
       >
         <IconPlus className="h-3.5 w-3.5" />
       </button>

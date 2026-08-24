@@ -140,7 +140,12 @@ export default function CartDrawer({
                     </button>
                   </div>
                   <div className="mt-2.5 flex items-center justify-between">
-                    <QtyStepper qty={l.qty} onChange={(q) => onSetQty(l.key, q)} />
+                    <QtyStepper
+                      qty={l.qty}
+                      min={1}
+                      max={l.product.stock}
+                      onChange={(q) => onSetQty(l.key, q)}
+                    />
                     <span className="text-sm font-extrabold tabular-nums text-cream-100">
                       {money(l.total)}
                     </span>

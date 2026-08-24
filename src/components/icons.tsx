@@ -154,6 +154,56 @@ export const IconBeanSolid = (p: P) => (
   </svg>
 );
 
+export const IconGear = (p: P) => (
+  <svg {...base} {...p}>
+    <circle cx="12" cy="12" r="3.2" />
+    <path d="M12 2.8 13.6 5a7.2 7.2 0 0 1 2.3 1l2.7-.6 1.4 2.4-1.9 2a7.3 7.3 0 0 1 0 2.4l1.9 2-1.4 2.4-2.7-.6a7.2 7.2 0 0 1-2.3 1L12 21.2 10.4 19a7.2 7.2 0 0 1-2.3-1l-2.7.6L4 16.2l1.9-2a7.3 7.3 0 0 1 0-2.4L4 9.8l1.4-2.4 2.7.6a7.2 7.2 0 0 1 2.3-1L12 2.8Z" />
+  </svg>
+);
+
+export const IconLock = (p: P) => (
+  <svg {...base} {...p}>
+    <rect x="5" y="10.5" width="14" height="10" rx="2" />
+    <path d="M8 10.5V7.5a4 4 0 0 1 8 0v3M12 14.5v2.5" />
+  </svg>
+);
+
+export const IconEdit = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M4 20h4.5L20 8.5a2.1 2.1 0 0 0-3-3L5.5 17 4 20ZM14.5 6l3 3" />
+  </svg>
+);
+
+export const IconUpload = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M4 15v3.5A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5V15" />
+  </svg>
+);
+
+export const IconBox = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M12 3 4 7v10l8 4 8-4V7l-8-4ZM4 7l8 4m0 0 8-4m-8 4v10" />
+  </svg>
+);
+
+export const IconRefresh = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M20 12a8 8 0 1 1-2.3-5.6M20 3.5V8h-4.5" />
+  </svg>
+);
+
+export const IconStore = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M4 9.5 5.5 4h13L20 9.5M4 9.5a2.4 2.4 0 0 0 4 1.6 2.4 2.4 0 0 0 4 0 2.4 2.4 0 0 0 4 0 2.4 2.4 0 0 0 4-1.6M5.5 12v8h13v-8M10 20v-5h4v5" />
+  </svg>
+);
+
+export const IconAlert = (p: P) => (
+  <svg {...base} {...p}>
+    <path d="M12 4 2.8 19.5h18.4L12 4ZM12 10v4.2M12 17.2v.1" />
+  </svg>
+);
+
 /** outlined coffee bean */
 export const IconBeanLine = (p: P) => (
   <svg {...base} {...p}>

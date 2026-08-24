@@ -2,19 +2,21 @@ import { useEffect, useMemo, useState } from "react";
 import {
   FLAT_SHIPPING,
   FREE_SHIPPING_AT,
-  PRODUCTS,
   WEIGHTS,
+  money,
   unitPrice,
   type Product,
 } from "./data/products";
+import { store, useProducts } from "./lib/store";
 import Header from "./components/Header";
 import Hero from "./components/Hero";
+import ProcessBand from "./components/ProcessBand";
 import ShopSection from "./components/ShopSection";
 import ProductModal from "./components/ProductModal";
 import CartDrawer, { type CartLineView } from "./components/CartDrawer";
 import CheckoutModal from "./components/CheckoutModal";
-import { IconBeanSolid, IconCheck, IconCup } from "./components/icons";
-import { Steam } from "./components/ui";
+import AdminDashboard from "./components/admin/AdminDashboard";
+import { IconBeanSolid, IconCheck, IconCup, IconGear } from "./components/icons";
 
 interface CartLine {
   key: string;
@@ -28,15 +30,19 @@ interface Toast {
   msg: string;
 }
 
-const NOISE = `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>")`;
+const NOISE = `url("image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>")`;
 
 export default function App() {
+  const products = useProducts();
+
   const [cart, setCart] = useState<CartLine[]>([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [active, setActive] = useState<Product | null>(null);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [toast, setToast] = useState<Toast | null>(null);
   const [subscribed, setSubscribed] = useState(false);
+  const [view, setView] = useState<"store" | "admin">("store");
+  const [adminUnlocked, setAdminUnlocked] = useState(false);
 
   /* toast auto-dismiss */
   useEffect(() => {
@@ -54,17 +60,25 @@ export default function App() {
     };
   }, [drawerOpen, active, checkoutOpen]);
 
+  /* scroll to top when switching sides */
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+  }, [view]);
+
+  const notify = (msg: string) => setToast({ id: Date.now(), msg });
+
   const lines: CartLineView[] = useMemo(
     () =>
       cart
         .map((l) => {
-          const product = PRODUCTS.find((p) => p.id === l.productId);
-          if (!product) return null;
+          const product = products.find((p) => p.id === l.productId);
+          if (!product || product.stock <= 0) return null;
+          const qty = Math.min(l.qty, product.stock);
           const unit = unitPrice(product, l.weightIdx);
-          return { ...l, product, unit, total: Math.round(unit * l.qty * 100) / 100 };
+          return { ...l, qty, product, unit, total: Math.round(unit * qty * 100) / 100 };
         })
         .filter((l): l is CartLineView => l !== null),
-    [cart]
+    [cart, products]
   );
 
   const subtotal = useMemo(
@@ -73,22 +87,38 @@ export default function App() {
   );
   const shipping = lines.length === 0 || subtotal >= FREE_SHIPPING_AT ? 0 : FLAT_SHIPPING;
   const total = Math.round((subtotal + shipping) * 100) / 100;
-  const cartCount = cart.reduce((n, l) => n + l.qty, 0);
+  const cartCount = lines.reduce((n, l) => n + l.qty, 0);
+
+  const featured = products.find((p) => p.stock > 0) ?? products[0] ?? null;
 
   /* ---------- actions ---------- */
   const addToCart = (p: Product, weightIdx = 0, qty = 1) => {
+    if (p.stock <= 0) {
+      notify(`${p.name} is sold out right now`);
+      return;
+    }
     const key = `${p.id}:${weightIdx}`;
     setCart((c) => {
       const existing = c.find((l) => l.key === key);
+      const nextQty = Math.min((existing?.qty ?? 0) + qty, p.stock);
       return existing
-        ? c.map((l) => (l.key === key ? { ...l, qty: l.qty + qty } : l))
-        : [...c, { key, productId: p.id, weightIdx, qty }];
+        ? c.map((l) => (l.key === key ? { ...l, qty: nextQty } : l))
+        : [...c, { key, productId: p.id, weightIdx, qty: Math.min(qty, p.stock) }];
     });
-    setToast({ id: Date.now(), msg: `${p.name} · ${WEIGHTS[weightIdx].label} added to your bag` });
+    notify(`${p.name} · ${WEIGHTS[weightIdx].label} added to your bag`);
   };
 
   const setQty = (key: string, qty: number) => {
-    setCart((c) => (qty <= 0 ? c.filter((l) => l.key !== key) : c.map((l) => (l.key === key ? { ...l, qty } : l))));
+    setCart((c) =>
+      qty <= 0
+        ? c.filter((l) => l.key !== key)
+        : c.map((l) => {
+            if (l.key !== key) return l;
+            const product = products.find((p) => p.id === l.productId);
+            const cap = product ? product.stock : qty;
+            return { ...l, qty: Math.min(qty, cap) };
+          })
+    );
   };
 
   const removeLine = (key: string) => setCart((c) => c.filter((l) => l.key !== key));
@@ -96,10 +126,15 @@ export default function App() {
   const browseShelf = () => {
     setDrawerOpen(false);
     setActive(null);
-    document.getElementById("shelf")?.scrollIntoView({ behavior: "smooth" });
+    if (view === "admin") setView("store");
+    window.setTimeout(
+      () => document.getElementById("shelf")?.scrollIntoView({ behavior: "smooth" }),
+      60
+    );
   };
 
   const focusSearch = () => {
+    if (view !== "store") setView("store");
     document.getElementById("shelf")?.scrollIntoView({ behavior: "smooth", block: "start" });
     window.setTimeout(() => {
       (document.getElementById("shelf-search") as HTMLInputElement | null)?.focus({
@@ -109,10 +144,13 @@ export default function App() {
   };
 
   const finishCheckout = () => {
+    lines.forEach((l) => store.decrement(l.productId, l.qty));
     setCart([]);
     setCheckoutOpen(false);
-    setToast({ id: Date.now(), msg: "Order placed — the drum is already spinning" });
+    notify("Order placed — the drum is already spinning");
   };
+
+  const toggleAdmin = () => setView((v) => (v === "store" ? "admin" : "store"));
 
   return (
     <div id="top" className="relative min-h-screen">
@@ -125,18 +163,33 @@ export default function App() {
       <div className="relative z-10">
         <Header
           cartCount={cartCount}
+          view={view}
           onCartOpen={() => setDrawerOpen(true)}
           onSearchClick={focusSearch}
+          onAdmin={toggleAdmin}
         />
 
-        <main>
-          <Hero
-            featured={PRODUCTS[0]}
-            onQuickAdd={(p) => addToCart(p)}
-            onOpen={(p) => setActive(p)}
-          />
-          <ShopSection onOpen={(p) => setActive(p)} onAdd={(p) => addToCart(p)} />
-        </main>
+        {view === "store" ? (
+          <main>
+            <Hero
+              featured={featured}
+              onQuickAdd={(p) => addToCart(p)}
+              onOpen={(p) => setActive(p)}
+            />
+            <ShopSection products={products} onOpen={(p) => setActive(p)} onAdd={(p) => addToCart(p)} />
+            <ProcessBand />
+          </main>
+        ) : (
+          <main>
+            <AdminDashboard
+              products={products}
+              unlocked={adminUnlocked}
+              onUnlock={() => setAdminUnlocked(true)}
+              onBack={() => setView("store")}
+              notify={notify}
+            />
+          </main>
+        )}
 
         {/* footer */}
         <footer id="visit" className="mt-8 scroll-mt-24 border-t border-cream-100/8 bg-espresso-900/50">
@@ -220,13 +273,28 @@ export default function App() {
             </div>
           </div>
           <div className="border-t border-cream-100/8">
-            <div className="container-x flex flex-col items-center justify-between gap-2 py-5 text-xs text-cream-500 sm:flex-row">
+            <div className="container-x flex flex-col items-center justify-between gap-3 py-5 text-xs text-cream-500 sm:flex-row">
               <p>© 2026 Cinder Coffee Roasters — Portland, OR</p>
               <p className="flex items-center gap-1.5">
                 Demo storefront, brewed with
                 <IconBeanSolid className="h-3 w-3 text-caramel-600" />
                 and React
               </p>
+              {view === "store" ? (
+                <button
+                  type="button"
+                  onClick={toggleAdmin}
+                  className="btn-press flex items-center gap-1.5 font-bold text-cream-400 transition-colors hover:text-caramel-300"
+                >
+                  <IconGear className="h-3.5 w-3.5" />
+                  Staff entrance
+                </button>
+              ) : (
+                <span className="flex items-center gap-1.5 font-bold text-caramel-400">
+                  <IconGear className="h-3.5 w-3.5" />
+                  Staff mode active
+                </span>
+              )}
             </div>
           </div>
         </footer>
@@ -285,7 +353,7 @@ export default function App() {
           <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-caramel-500 text-espresso-950">
             <IconCheck className="h-4 w-4" strokeWidth={2.6} />
           </span>
-          <p className="min-w-0 truncate text-sm font-bold text-cream-100">{toast.msg}</p>
+          <p className="truncate text-sm font-bold text-cream-100">{toast.msg}</p>
           <button
             type="button"
             onClick={() => {

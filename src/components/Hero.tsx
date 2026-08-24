@@ -47,7 +47,7 @@ export default function Hero({
   onQuickAdd,
   onOpen,
 }: {
-  featured: Product;
+  featured: Product | null;
   onQuickAdd: (p: Product) => void;
   onOpen: (p: Product) => void;
 }) {
@@ -80,7 +80,7 @@ export default function Hero({
               <IconArrowDown className="h-4 w-4" strokeWidth={2.2} />
             </a>
             <a
-              href="#visit"
+              href="#process"
               className="text-sm font-bold text-cream-300 underline decoration-caramel-500/50 underline-offset-8 transition-colors hover:text-caramel-300"
             >
               How we roast
@@ -106,22 +106,35 @@ export default function Hero({
         {/* imagery */}
         <div className="relative mb-10 lg:col-span-5 lg:mb-0">
           <RotatingStamp />
-          <button
-            type="button"
-            onClick={() => onOpen(featured)}
-            className="group relative block w-full overflow-hidden rounded-xl border border-cream-100/10 text-left shadow-warm"
-            aria-label={`View ${featured.name}`}
-          >
-            <img
-              src={HERO_IMAGE}
-              alt="Gooseneck kettle pouring a pour-over, steam rising"
-              className="aspect-[4/5] w-full object-cover transition-transform duration-[1.4s] ease-out group-hover:scale-[1.04]"
-            />
-            <span className="absolute inset-0 bg-gradient-to-t from-espresso-950/70 via-transparent to-espresso-950/10" />
-            <Steam className="bottom-[52%] left-1/2 -translate-x-1/2" />
-          </button>
+          {featured ? (
+            <button
+              type="button"
+              onClick={() => onOpen(featured)}
+              className="group relative block w-full overflow-hidden rounded-xl border border-cream-100/10 text-left shadow-warm"
+              aria-label={`View ${featured.name}`}
+            >
+              <img
+                src={HERO_IMAGE}
+                alt="Gooseneck kettle pouring a pour-over, steam rising"
+                className="aspect-[4/5] w-full object-cover transition-transform duration-[1.4s] ease-out group-hover:scale-[1.04]"
+              />
+              <span className="absolute inset-0 bg-gradient-to-t from-espresso-950/70 via-transparent to-espresso-950/10" />
+              <Steam className="bottom-[52%] left-1/2 -translate-x-1/2" />
+            </button>
+          ) : (
+            <div className="group relative block w-full overflow-hidden rounded-xl border border-cream-100/10 shadow-warm">
+              <img
+                src={HERO_IMAGE}
+                alt="Gooseneck kettle pouring a pour-over, steam rising"
+                className="aspect-[4/5] w-full object-cover"
+              />
+              <span className="absolute inset-0 bg-gradient-to-t from-espresso-950/70 via-transparent to-espresso-950/10" />
+              <Steam className="bottom-[52%] left-1/2 -translate-x-1/2" />
+            </div>
+          )}
 
           {/* roast of the week card */}
+          {featured && (
           <div className="anim-rise absolute -bottom-8 -left-2 flex w-[292px] items-center gap-3 rounded-xl border border-cream-100/12 bg-espresso-900/95 p-3.5 shadow-warm backdrop-blur sm:-left-8" style={{ animationDelay: "250ms" }}>
             <button
               type="button"
@@ -162,6 +175,7 @@ export default function Hero({
               </button>
             </div>
           </div>
+          )}
         </div>
       </div>
 
