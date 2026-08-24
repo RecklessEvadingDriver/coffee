@@ -36,6 +36,14 @@
 
 html {
   scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* iOS Safari zooms any input with font-size < 16px on focus */
+@media (max-width: 640px) {
+  .input-dark {
+    font-size: 16px;
+  }
 }
 
 body {

@@ -8,6 +8,7 @@ import {
   type Product,
 } from "./data/products";
 import { store, useProducts } from "./lib/store";
+import { useBodyLock } from "./lib/useBodyLock";
 import Header from "./components/Header";
 import Hero from "./components/Hero";
 import RoastLog from "./components/RoastLog";
@@ -51,14 +52,8 @@ export default function App() {
     return () => window.clearTimeout(t);
   }, [toast]);
 
-  /* body scroll lock while any overlay is open */
-  useEffect(() => {
-    const locked = drawerOpen || active !== null || checkoutOpen;
-    document.body.style.overflow = locked ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [drawerOpen, active, checkoutOpen]);
+  /* body scroll lock while any overlay is open (iOS-safe) */
+  useBodyLock(drawerOpen || active !== null || checkoutOpen);
 
   /* scroll to top when switching sides */
   useEffect(() => {
@@ -372,13 +367,13 @@ export default function App() {
       {toast && (
         <div
           key={toast.id}
-          className="anim-rise fixed bottom-5 left-1/2 z-[80] flex w-max max-w-[92vw] -translate-x-1/2 items-center gap-3 rounded-full border border-caramel-500/40 bg-espresso-800/95 py-2.5 pl-3 pr-4 shadow-warm backdrop-blur"
+          className="anim-rise fixed bottom-[max(1.25rem,env(safe-area-inset-bottom))] left-1/2 z-[80] flex w-max max-w-[92vw] -translate-x-1/2 items-center gap-3 rounded-full border border-caramel-500/40 bg-espresso-800/95 py-2.5 pl-3 pr-4 shadow-warm backdrop-blur"
           role="status"
         >
           <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-caramel-500 text-espresso-950">
             <IconCheck className="h-4 w-4" strokeWidth={2.6} />
           </span>
-          <p className="truncate text-sm font-bold text-cream-100">{toast.msg}</p>
+          <p className="min-w-0 flex-1 truncate text-sm font-bold text-cream-100">{toast.msg}</p>
           <button
             type="button"
             onClick={() => {

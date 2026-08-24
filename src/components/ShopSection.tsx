@@ -85,12 +85,12 @@ function LedgerRow({
           <p className="mt-1.5 text-[11px] font-extrabold uppercase tracking-[0.18em] text-cream-500">
             {product.origin} · {product.process}
           </p>
-          <div className="mt-2 flex items-center gap-4">
-            <p className="font-display text-[15px] font-light italic leading-none text-cream-400">
+          <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5">
+            <p className="min-w-0 flex-1 font-display text-[15px] font-light italic leading-snug text-cream-400">
               {product.notes.join(" · ")}
             </p>
-            <span className="hidden min-w-8 flex-1 border-b border-dotted border-cream-100/15 md:block" />
-            <span className="ml-auto shrink-0 md:ml-0">
+            <span className="hidden min-w-8 flex-1 self-center border-b border-dotted border-cream-100/15 md:block" />
+            <span className="shrink-0">
               <RoastMeter level={product.roast} />
             </span>
           </div>

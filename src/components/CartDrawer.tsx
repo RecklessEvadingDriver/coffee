@@ -67,7 +67,7 @@ export default function CartDrawer({
       <aside
         role="dialog"
         aria-label="Shopping bag"
-        className={`absolute right-0 top-0 flex h-full w-full max-w-md flex-col border-l border-cream-100/10 bg-espresso-900 shadow-warm transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+        className={`absolute right-0 top-0 flex h-full w-full max-w-md flex-col border-l border-cream-100/10 bg-espresso-900 pt-[env(safe-area-inset-top)] shadow-warm transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
           open ? "translate-x-0" : "translate-x-full"
         }`}
       >
@@ -200,7 +200,7 @@ export default function CartDrawer({
 
         {/* footer */}
         {lines.length > 0 && (
-          <div className="space-y-2 border-t border-cream-100/10 bg-espresso-900 p-5">
+          <div className="space-y-2 border-t border-cream-100/10 bg-espresso-900 p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
             <div className="flex justify-between text-sm text-cream-400">
               <span>Subtotal</span>
               <span className="tabular-nums">{money(subtotal)}</span>
