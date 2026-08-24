@@ -1,24 +1,69 @@
 import { useSyncExternalStore } from "react";
-import { PRODUCTS, type Product } from "../data/products";
+import {
+  CATEGORY_NAMES,
+  DEFAULT_BREW,
+  PRODUCTS,
+  type BrewRow,
+  type CategoryName,
+  type Product,
+} from "../data/products";
 
-const KEY = "cinder:products:v1";
+const KEY = "cinder:products:v2";
 
-function load(): Product[] {
-  try {
-    const raw = localStorage.getItem(KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.every((p) => p && typeof p.id === "string")) {
-        return parsed as Product[];
-      }
-    }
-  } catch {
-    /* fall through to defaults */
+/** Coerce anything previously persisted into a safe, complete Product. */
+function sanitize(raw: unknown): Product | null {
+  if (!raw || typeof raw !== "object") return null;
+  const o = raw as Record<string, unknown>;
+  if (typeof o.id !== "string" || typeof o.name !== "string" || typeof o.image !== "string") {
+    return null;
   }
-  return PRODUCTS;
+  const num = (v: unknown, fallback: number) =>
+    Number.isFinite(Number(v)) ? Math.max(0, Number(v)) : fallback;
+  const str = (v: unknown, fallback: string) => (typeof v === "string" ? v : fallback);
+  const roastNum = num(o.roast, 3);
+  const roast = ([1, 2, 3, 4, 5].includes(roastNum) ? roastNum : 3) as 1 | 2 | 3 | 4 | 5;
+  const notes = Array.isArray(o.notes)
+    ? o.notes.filter((n): n is string => typeof n === "string").slice(0, 8)
+    : [];
+  const brewGuide = Array.isArray(o.brewGuide) ? (o.brewGuide as BrewRow[]) : DEFAULT_BREW;
+  const category = CATEGORY_NAMES.includes(o.category as CategoryName)
+    ? (o.category as CategoryName)
+    : "Single Origin";
+
+  return {
+    id: o.id,
+    name: o.name,
+    origin: str(o.origin, "—"),
+    region: str(o.region, "—"),
+    category,
+    process: str(o.process, "Washed"),
+    varietal: str(o.varietal, "—"),
+    altitude: str(o.altitude, "—"),
+    producer: str(o.producer, "—"),
+    roast,
+    notes,
+    description: str(o.description, ""),
+    price: Math.round(num(o.price, 0) * 100) / 100,
+    stock: Math.round(num(o.stock, 0)),
+    image: o.image,
+    accent: str(o.accent, "#df9c4b"),
+    badge: typeof o.badge === "string" && o.badge.trim() ? o.badge : undefined,
+    brewGuide,
+  };
 }
 
-let products: Product[] = load();
+function parse(raw: string | null): Product[] | null {
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return null;
+    return parsed.map(sanitize).filter((p): p is Product => p !== null);
+  } catch {
+    return null;
+  }
+}
+
+let products: Product[] = parse(localStorage.getItem(KEY)) ?? PRODUCTS;
 const listeners = new Set<() => void>();
 
 function emit() {
@@ -39,6 +84,13 @@ function subscribe(fn: () => void) {
     listeners.delete(fn);
   };
 }
+
+/* keep two open tabs (shop + back office) in sync */
+window.addEventListener("storage", (e) => {
+  if (e.key !== KEY) return;
+  products = parse(e.newValue) ?? PRODUCTS;
+  emit();
+});
 
 export function slugify(s: string): string {
   return (

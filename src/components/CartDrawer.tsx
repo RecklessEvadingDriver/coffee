@@ -16,6 +16,7 @@ export interface CartLineView {
   qty: number;
   unit: number;
   total: number;
+  available: boolean;
 }
 
 export default function CartDrawer({
@@ -41,7 +42,7 @@ export default function CartDrawer({
   onCheckout: () => void;
   onBrowse: () => void;
 }) {
-  const count = lines.reduce((n, l) => n + l.qty, 0);
+  const count = lines.filter((l) => l.available).reduce((n, l) => n + l.qty, 0);
   const remaining = FREE_SHIPPING_AT - subtotal;
   const progress = Math.min(1, subtotal / FREE_SHIPPING_AT);
 
@@ -118,7 +119,9 @@ export default function CartDrawer({
                 <img
                   src={l.product.image}
                   alt={l.product.name}
-                  className="h-21 w-16 shrink-0 rounded-lg border border-cream-100/10 object-cover"
+                  className={`h-21 w-16 shrink-0 rounded-lg border border-cream-100/10 object-cover ${
+                    l.available ? "" : "opacity-40 saturate-0"
+                  }`}
                 />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-2">
@@ -126,9 +129,15 @@ export default function CartDrawer({
                       <h3 className="truncate font-display text-lg leading-tight text-cream-50">
                         {l.product.name}
                       </h3>
-                      <p className="mt-0.5 text-xs text-cream-500">
-                        {WEIGHTS[l.weightIdx].label} · {money(l.unit)} each
-                      </p>
+                      {l.available ? (
+                        <p className="mt-0.5 text-xs text-cream-500">
+                          {WEIGHTS[l.weightIdx].label} · {money(l.unit)} each
+                        </p>
+                      ) : (
+                        <p className="mt-0.5 text-xs font-bold text-cherry-400">
+                          Sold out — back after the next roast day
+                        </p>
+                      )}
                     </div>
                     <button
                       type="button"
@@ -139,17 +148,32 @@ export default function CartDrawer({
                       <IconTrash className="h-4 w-4" />
                     </button>
                   </div>
-                  <div className="mt-2.5 flex items-center justify-between">
-                    <QtyStepper
-                      qty={l.qty}
-                      min={1}
-                      max={l.product.stock}
-                      onChange={(q) => onSetQty(l.key, q)}
-                    />
-                    <span className="text-sm font-extrabold tabular-nums text-cream-100">
-                      {money(l.total)}
-                    </span>
-                  </div>
+                  {l.available ? (
+                    <div className="mt-2.5 flex items-center justify-between">
+                      <QtyStepper
+                        qty={l.qty}
+                        min={1}
+                        max={l.product.stock}
+                        onChange={(q) => onSetQty(l.key, q)}
+                      />
+                      <span className="text-sm font-extrabold tabular-nums text-cream-100">
+                        {money(l.total)}
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="mt-2.5 flex items-center justify-between">
+                      <span className="text-xs font-bold text-cream-500">
+                        Not counted at checkout
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => onRemove(l.key)}
+                        className="text-xs font-extrabold text-cherry-400 underline decoration-cherry-500/40 underline-offset-4 transition-colors hover:text-cherry-500"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -191,10 +215,20 @@ export default function CartDrawer({
               <span className="text-sm font-extrabold text-cream-100">Total</span>
               <span className="font-display text-2xl text-cream-50">{money(total)}</span>
             </div>
+            {subtotal <= 0 && (
+              <p className="pt-1 text-center text-xs font-bold text-cherry-400">
+                Everything in your bag is sold out — remove those lines to continue.
+              </p>
+            )}
             <button
               type="button"
               onClick={onCheckout}
-              className="btn-press mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-full bg-caramel-500 text-sm font-extrabold text-espresso-950 transition-colors hover:bg-caramel-400"
+              disabled={subtotal <= 0}
+              className={`btn-press mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-full text-sm font-extrabold transition-colors ${
+                subtotal <= 0
+                  ? "cursor-not-allowed border border-cream-100/15 text-cream-500"
+                  : "bg-caramel-500 text-espresso-950 hover:bg-caramel-400"
+              }`}
             >
               Checkout — {money(total)}
               <IconArrowRight className="h-4 w-4" strokeWidth={2.2} />

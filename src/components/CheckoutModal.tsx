@@ -90,6 +90,10 @@ export default function CheckoutModal({
       setError("Please fill in every field — we can't ship to a blank label.");
       return;
     }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(form.email.trim())) {
+      setError("That email doesn't look deliverable — double-check it.");
+      return;
+    }
     if (form.card.replace(/\D/g, "").length < 12) {
       setError("That card number looks a little short for a real card.");
       return;

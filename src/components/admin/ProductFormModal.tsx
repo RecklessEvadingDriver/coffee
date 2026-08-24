@@ -136,6 +136,14 @@ export default function ProductFormModal({
   const onFile = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (file.size > 4 * 1024 * 1024) {
+      setErrors((errs) => ({
+        ...errs,
+        image: "Keep uploads under 4 MB — the photo lives in your browser's storage.",
+      }));
+      return;
+    }
+    setErrors((errs) => ({ ...errs, image: undefined }));
     const reader = new FileReader();
     reader.onload = () => {
       const result = reader.result;

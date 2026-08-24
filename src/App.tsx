@@ -30,7 +30,7 @@ interface Toast {
   msg: string;
 }
 
-const NOISE = `url("image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>")`;
+const NOISE = `url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>")`;
 
 export default function App() {
   const products = useProducts();
@@ -72,22 +72,46 @@ export default function App() {
       cart
         .map((l) => {
           const product = products.find((p) => p.id === l.productId);
-          if (!product || product.stock <= 0) return null;
-          const qty = Math.min(l.qty, product.stock);
+          if (!product) return null;
+          const available = product.stock > 0;
+          const qty = available ? Math.min(l.qty, product.stock) : l.qty;
           const unit = unitPrice(product, l.weightIdx);
-          return { ...l, qty, product, unit, total: Math.round(unit * qty * 100) / 100 };
+          return {
+            ...l,
+            qty,
+            product,
+            unit,
+            available,
+            total: available ? Math.round(unit * qty * 100) / 100 : 0,
+          };
         })
         .filter((l): l is CartLineView => l !== null),
     [cart, products]
   );
 
+  /* close the detail modal if its product gets deleted in the back office */
+  useEffect(() => {
+    setActive((a) => (a && !products.some((p) => p.id === a.id) ? null : a));
+  }, [products]);
+
+  /* drop bag lines whose products were deleted in the back office */
+  useEffect(() => {
+    setCart((c) => {
+      const hasOrphans = c.some((l) => !products.some((p) => p.id === l.productId));
+      return hasOrphans ? c.filter((l) => products.some((p) => p.id === l.productId)) : c;
+    });
+  }, [products]);
+
+  /* lines that can actually be purchased right now */
+  const purchasable = useMemo(() => lines.filter((l) => l.available), [lines]);
+
   const subtotal = useMemo(
-    () => Math.round(lines.reduce((s, l) => s + l.total, 0) * 100) / 100,
-    [lines]
+    () => Math.round(purchasable.reduce((s, l) => s + l.total, 0) * 100) / 100,
+    [purchasable]
   );
-  const shipping = lines.length === 0 || subtotal >= FREE_SHIPPING_AT ? 0 : FLAT_SHIPPING;
+  const shipping = purchasable.length === 0 || subtotal >= FREE_SHIPPING_AT ? 0 : FLAT_SHIPPING;
   const total = Math.round((subtotal + shipping) * 100) / 100;
-  const cartCount = lines.reduce((n, l) => n + l.qty, 0);
+  const cartCount = purchasable.reduce((n, l) => n + l.qty, 0);
 
   const featured = products.find((p) => p.stock > 0) ?? products[0] ?? null;
 
@@ -144,7 +168,7 @@ export default function App() {
   };
 
   const finishCheckout = () => {
-    lines.forEach((l) => store.decrement(l.productId, l.qty));
+    purchasable.forEach((l) => store.decrement(l.productId, l.qty));
     setCart([]);
     setCheckoutOpen(false);
     notify("Order placed — the drum is already spinning");
@@ -309,7 +333,7 @@ export default function App() {
 
       {/* overlays */}
       <ProductModal
-        product={active}
+        product={active ? products.find((p) => p.id === active.id) ?? active : null}
         onClose={() => setActive(null)}
         onAdd={(p, w, q) => {
           addToCart(p, w, q);
@@ -335,7 +359,7 @@ export default function App() {
 
       <CheckoutModal
         open={checkoutOpen}
-        lines={lines}
+        lines={purchasable}
         subtotal={subtotal}
         shipping={shipping}
         total={total}
