@@ -126,12 +126,12 @@ function ModalInner({
                 {product.brewGuide.map((r) => (
                   <div
                     key={r.method}
-                    className="flex items-center justify-between gap-3 border-b border-cream-100/6 py-2 text-sm last:border-0"
+                    className="flex items-center justify-between gap-2.5 border-b border-cream-100/6 py-2 text-sm last:border-0"
                   >
-                    <span className="w-24 font-bold text-cream-100">{r.method}</span>
-                    <span className="flex-1 text-xs text-cream-400">{r.ratio}</span>
-                    <span className="hidden text-xs text-cream-500 sm:block">{r.temp}</span>
-                    <span className="w-12 text-right text-xs font-bold text-cream-300">{r.time}</span>
+                    <span className="w-20 shrink-0 font-bold text-cream-100 sm:w-24">{r.method}</span>
+                    <span className="min-w-0 flex-1 truncate text-xs text-cream-400">{r.ratio}</span>
+                    <span className="hidden shrink-0 text-xs text-cream-500 sm:block">{r.temp}</span>
+                    <span className="w-11 shrink-0 text-right text-xs font-bold text-cream-300">{r.time}</span>
                   </div>
                 ))}
               </div>
@@ -177,7 +177,7 @@ function ModalInner({
                   );
                 })}
               </div>
-              <div className="mt-3 flex items-center gap-3">
+              <div className="mt-3 flex flex-col gap-2.5 sm:flex-row sm:items-center sm:gap-3">
                 {product.stock > 0 && (
                   <QtyStepper
                     qty={Math.min(qty, product.stock)}
@@ -190,7 +190,7 @@ function ModalInner({
                   type="button"
                   disabled={product.stock <= 0}
                   onClick={() => onAdd(product, weightIdx, Math.min(qty, product.stock))}
-                  className={`btn-press flex h-11 flex-1 items-center justify-center gap-2 rounded-full text-sm font-extrabold transition-colors ${
+                  className={`btn-press flex h-11 w-full flex-1 items-center justify-center gap-2 rounded-full text-sm font-extrabold transition-colors sm:w-auto ${
                     product.stock <= 0
                       ? "cursor-not-allowed border border-cream-100/15 text-cream-500"
                       : "bg-caramel-500 text-espresso-950 hover:bg-caramel-400"

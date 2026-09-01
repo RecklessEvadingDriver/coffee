@@ -103,17 +103,26 @@ export default function RoastLog() {
                 return (
                   <div
                     key={r.lot}
-                    className={`group grid gap-x-4 gap-y-1 px-5 py-4 transition-colors hover:bg-espresso-850/70 sm:grid-cols-[72px_1.2fr_0.7fr_0.7fr_1.8fr] sm:items-baseline ${
+                    className={`group grid gap-x-4 gap-y-1.5 px-4 py-4 transition-colors hover:bg-espresso-850/70 sm:grid-cols-[72px_1.2fr_0.7fr_0.7fr_1.8fr] sm:items-baseline sm:px-5 ${
                       i > 0 ? "border-t border-cream-100/8" : ""
                     }`}
                   >
-                    <p className="text-sm">
-                      <span className="font-extrabold text-caramel-300">{d.dow}</span>{" "}
-                      <span className="text-xs text-cream-500">{d.date}</span>
-                    </p>
-                    <p className="font-display text-lg leading-tight text-cream-50">{r.lot}</p>
-                    <p className="text-sm font-bold tabular-nums text-cream-300">{r.batch}</p>
-                    <p className="text-sm font-bold tabular-nums text-cream-300">{r.crack}</p>
+                    <div className="flex items-baseline justify-between gap-3 sm:contents">
+                      <p className="text-sm">
+                        <span className="font-extrabold text-caramel-300">{d.dow}</span>{" "}
+                        <span className="text-xs text-cream-500">{d.date}</span>
+                      </p>
+                      <p className="truncate font-display text-lg leading-tight text-cream-50 sm:overflow-visible sm:whitespace-normal">
+                        {r.lot}
+                      </p>
+                    </div>
+                    <div className="flex items-baseline gap-4 sm:contents">
+                      <p className="text-sm font-bold tabular-nums text-cream-300">{r.batch}</p>
+                      <p className="text-sm font-bold tabular-nums text-cream-300">
+                        <span className="font-semibold text-cream-500 sm:hidden">crack </span>
+                        {r.crack}
+                      </p>
+                    </div>
                     <p className="text-sm italic leading-relaxed text-cream-400">{r.note}</p>
                   </div>
                 );

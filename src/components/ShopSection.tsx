@@ -45,7 +45,7 @@ function LedgerRow({
     <Reveal delay={index * 60}>
       <article
         onClick={() => onOpen(product)}
-        className="group -mx-3 flex cursor-pointer flex-wrap items-center gap-x-6 gap-y-3 rounded-xl px-3 py-5 transition-all duration-300 hover:bg-espresso-850/80 sm:-mx-5 sm:px-5"
+        className="group -mx-3 grid cursor-pointer grid-cols-[64px_minmax(0,1fr)] items-center gap-x-4 gap-y-3 rounded-xl px-3 py-5 transition-all duration-300 hover:bg-espresso-850/80 sm:-mx-5 sm:grid-cols-[80px_minmax(0,1fr)_auto] sm:gap-x-6 sm:px-5"
       >
         {/* thumbnail */}
         <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-cream-100/10 sm:h-20 sm:w-20">
@@ -67,7 +67,7 @@ function LedgerRow({
         </div>
 
         {/* main */}
-        <div className="min-w-[220px] flex-1">
+        <div className="min-w-0">
           <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
             <span className="font-display text-sm italic text-cream-600">{idx}</span>
             <h3 className="font-display text-[22px] leading-tight text-cream-50 transition-colors group-hover:text-caramel-300 sm:text-2xl">
@@ -85,20 +85,20 @@ function LedgerRow({
           <p className="mt-1.5 text-[11px] font-extrabold uppercase tracking-[0.18em] text-cream-500">
             {product.origin} · {product.process}
           </p>
-          <div className="mt-2 flex items-center gap-4">
-            <p className="font-display text-[15px] font-light italic leading-none text-cream-400">
+          <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5">
+            <p className="min-w-0 flex-1 font-display text-[15px] font-light italic leading-snug text-cream-400">
               {product.notes.join(" · ")}
             </p>
-            <span className="hidden min-w-8 flex-1 border-b border-dotted border-cream-100/15 md:block" />
-            <span className="ml-auto shrink-0 md:ml-0">
+            <span className="hidden min-w-8 flex-1 self-center border-b border-dotted border-cream-100/15 md:block" />
+            <span className="shrink-0">
               <RoastMeter level={product.roast} />
             </span>
           </div>
         </div>
 
         {/* price + add */}
-        <div className="ml-auto flex items-center gap-4 sm:gap-6">
-          <div className="text-right">
+        <div className="col-span-2 flex items-center justify-between gap-4 border-t border-cream-100/8 pt-3.5 sm:col-span-1 sm:border-0 sm:pt-0 sm:pl-2">
+          <div className="text-left sm:text-right">
             <p
               className={`font-display text-xl leading-none ${
                 soldOut ? "text-cream-400" : "text-cream-50"
@@ -199,7 +199,7 @@ export default function ShopSection({
               This month&rsquo;s roast list
             </h2>
           </div>
-          <p className="pb-1 text-right text-xs font-bold uppercase tracking-[0.18em] text-cream-500">
+          <p className="pb-1 text-left text-xs font-bold uppercase tracking-[0.18em] text-cream-500 sm:text-right">
             Last roast <span className="text-cream-200">{roastDay(-1)}</span>
             <span className="mx-2 text-caramel-600">/</span>
             next <span className="text-caramel-300">{roastDay(1)}</span>

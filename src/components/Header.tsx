@@ -28,7 +28,7 @@ export default function Header({
             <span className="font-display text-[22px] font-semibold tracking-[0.08em] text-cream-50">
               CINDER
             </span>
-            <span className="mt-1 block text-[9px] font-bold uppercase tracking-[0.42em] text-cream-500">
+            <span className="mt-1 hidden text-[9px] font-bold uppercase tracking-[0.42em] text-cream-500 sm:block">
               Coffee Roasters
             </span>
           </span>

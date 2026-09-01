@@ -258,7 +258,7 @@ export default function AdminDashboard({
             <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-cream-500">
               {s.label}
             </p>
-            <p className={`mt-2 font-display text-3xl md:text-4xl ${s.warn ? "text-cherry-400" : "text-cream-50"}`}>
+            <p className={`mt-2 font-display text-[22px] tabular-nums sm:text-3xl md:text-4xl ${s.warn ? "text-cherry-400" : "text-cream-50"}`}>
               {s.value}
             </p>
           </div>

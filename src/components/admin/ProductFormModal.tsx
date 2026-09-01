@@ -8,6 +8,7 @@ import {
   type Product,
 } from "../../data/products";
 import { RoastMeter } from "../ui";
+import { useBodyLock } from "../../lib/useBodyLock";
 import { IconCheck, IconRefresh, IconUpload, IconX } from "../icons";
 
 const ACCENTS = [
@@ -125,6 +126,8 @@ export default function ProductFormModal({
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
+
+  useBodyLock(open);
 
   if (!open) return null;
 

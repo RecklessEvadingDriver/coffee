@@ -36,6 +36,14 @@
 
 html {
   scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* iOS Safari zooms any input with font-size < 16px on focus */
+@media (max-width: 640px) {
+  .input-dark {
+    font-size: 16px;
+  }
 }
 
 body {
@@ -193,9 +201,11 @@ body {
 .ticker-track {
   display: flex;
   align-items: center;
-  gap: 3rem;
   width: max-content;
   animation: ticker 32s linear infinite;
+}
+.ticker-track > * {
+  padding-right: 3rem;
 }
 .ticker:hover .ticker-track {
   animation-play-state: paused;
